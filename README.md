@@ -1,11 +1,11 @@
-SPA-приложение: Комментарии
+SPA application: Comments
 
-Бэкэнд реализован на Django REST framework
-Фронтенд реализован на Vue.js
+Backend is implemented on Django REST framework
+Frontend is implemented on Vue.js
 
-Возможности пользователя:
-- регистрация
-- вход
-- выход
-- публикация постов
-- публикация комментариев к постам
+User capabilities:
+- registration
+- login
+- logout
+- publishing posts
+- publishing comments to posts
