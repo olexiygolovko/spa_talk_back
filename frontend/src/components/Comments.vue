@@ -57,7 +57,8 @@ export default {
       comments: [],
       commentText: '',
       showCommentForm: false,
-      showComments: false
+      showComments: false,
+      replyToId: null  // Добавьте это поле
     };
   },
   created() {
@@ -181,7 +182,8 @@ export default {
       try {
         const response = await axios.post(API_URLS.COMMENTS, {
           post: this.postId,
-          text: this.commentText
+          text: this.commentText,
+          parent: this.replyToId || null  
         }, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -189,6 +191,7 @@ export default {
         });
         this.commentText = '';
         this.showCommentForm = false;
+        this.replyToId = null; // Reset the replyToId
         this.fetchComments();
       } catch (error) {
         console.error("Error submitting comment:", error);
@@ -198,6 +201,11 @@ export default {
           alert("Failed to submit comment, please try again.");
         }
       }
+    },
+
+    showReplyForm(commentId) {
+      this.replyToId = commentId;  // Сохраняем ID комментария, на который отвечаем
+      this.showCommentForm = true;
     },
 
     showReplyForm(index) {

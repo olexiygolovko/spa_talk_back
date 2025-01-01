@@ -35,7 +35,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['spa-talk-back.onrender.com', 'https://talk-back.onrender.com', 'localhost:127.0.0.1',
+ALLOWED_HOSTS = ['spa-talk-back.onrender.com', 'https://talk-back.onrender.com', '127.0.0.1', 'http://127.0.0.1:8000',
                  'localhost', 'http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:8080', 'http://127.0.0.1:8080',]
 
 
@@ -52,9 +52,11 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'comments',
     'captcha',
+    'boto3',
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders', 
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -222,12 +224,14 @@ CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'  
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = False 
+CORS_ALLOW_ALL_ORIGINS = True
+
 CORS_ALLOWED_ORIGINS = [
     'https://spa-talk-back.onrender.com',
     'https://talk-back.onrender.com',
     'http://localhost:5173',
-    'http://127.0.0.1:5173'
+    'http://127.0.0.1:5173',
+    'https://talk-back.onrender.com',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -268,4 +272,14 @@ SIMPLE_JWT = {
 }
 
 SITE_ID = 1
+
+if not DEBUG:
+
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME')
+    AWS_DEFAULT_ACL = None
+    AWS_S3_VERIFY = True
 
