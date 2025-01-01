@@ -62,8 +62,7 @@ def validate_image_size(image):
             image = InMemoryUploadedFile(
                 output,
                 'ImageField',
-                f"{image.name.split('.')[0]}_resized.{
-                    image.name.split('.')[-1]}",
+                f"{image.name.split('.')[0]}_resized.{image.name.split('.')[1]}",
                 image.content_type,
                 sys.getsizeof(output),
                 None
