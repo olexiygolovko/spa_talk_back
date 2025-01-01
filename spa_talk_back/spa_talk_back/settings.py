@@ -12,10 +12,16 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 from decouple import config
-from dj_database_url import parse as db_url
+from dotenv import load_dotenv
+import dj_database_url
+import environ
 
 from datetime import timedelta
 
+env = environ.Env()
+environ.Env.read_env()
+
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -84,6 +90,21 @@ WSGI_APPLICATION = 'spa_talk_back.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+# if "DATABASE_URL" in os.environ:
+#     DATABASES = {
+#         'default': dj_database_url.config(default=os.environ.get("DATABASE_URL"))
+#     }
+# else:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql',
+#             'NAME': config('DATABASE_NAME'),
+#             'USER': config('DATABASE_USER'),
+#             'PASSWORD': config('DATABASE_PASSWORD'),
+#             'HOST': 'localhost',
+#             'PORT': '5432',
+#         }
+#     }
 
 DATABASES = {
     'default': {
