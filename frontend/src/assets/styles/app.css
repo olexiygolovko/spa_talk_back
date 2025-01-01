@@ -1,52 +1,3 @@
-<template>
-  <div id="app">
-    <header v-if="isLoggedIn">
-      <Authorization :isLoggedIn="isLoggedIn" @login="handleLogin" @logout="handleLogout"/>
-    </header>
-    <div class="content" v-if="isLoggedIn">
-      <Posts />
-    </div>
-    <div class="auth-content" v-else>
-      <Authorization :isLoggedIn="isLoggedIn" @login="handleLogin" @logout="handleLogout"/>
-    </div>
-  </div>
-</template>
-
-<script>
-import { ref, onMounted } from 'vue';
-import Authorization from './components/Authorization.vue';
-import Posts from './components/Posts.vue';
-
-export default {
-  components: {
-    Authorization,
-    Posts
-  },
-  setup() {
-    const isLoggedIn = ref(false);
-
-    const handleLogin = () => {
-      isLoggedIn.value = true;
-    };
-
-    const handleLogout = () => {
-      isLoggedIn.value = false;
-      localStorage.removeItem('authToken'); // Remove token
-    };
-
-    onMounted(() => {
-      const token = localStorage.getItem('authToken');
-      if (token) {
-        isLoggedIn.value = true;
-      }
-    });
-
-    return { isLoggedIn, handleLogin, handleLogout };
-  }
-};
-</script>
-
-<style>
 body {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -69,8 +20,8 @@ header {
   background-color: #f8f9fa;
   padding: 10px 0;
   display: flex;
-  justify-content: flex-end; /* Align items to the right */
-  padding-right: 20px; /* Add some padding to the right */
+  justify-content: flex-end;
+  padding-right: 20px;
 }
 
 .content {
@@ -102,7 +53,7 @@ header {
 }
 
 .register-button, .login-button {
-  background-color: #28a745; /* Green */
+  background-color: #28a745;
   color: white;
 }
 
@@ -111,7 +62,7 @@ header {
 }
 
 .logout-button {
-  background-color: #dc3545; /* Red */
+  background-color: #dc3545;
   color: white;
   padding: 10px 20px;
   border: none;
@@ -171,4 +122,3 @@ form button[type="button"] {
 form button[type="button"]:hover {
   background-color: #c82333;
 }
-</style>

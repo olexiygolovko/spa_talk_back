@@ -1,9 +1,8 @@
 <template>
-  <div>
+  <div class="auth-container" v-if="!isLoggedIn">
     <div class="auth-buttons">
-      <button v-if="!isLoggedIn" @click="showRegister = true">Register</button>
-      <button v-if="!isLoggedIn" @click="showLogin = true">Login</button>
-      <button v-if="isLoggedIn" @click="logout">Logout</button>
+      <button @click="showRegister = true" class="register-button">Register</button>
+      <button @click="showLogin = true" class="login-button">Login</button>
     </div>
 
     <!-- Registration form -->
@@ -20,11 +19,49 @@
         </div>
         <div>
           <label for="password">Password:</label>
-          <input v-model="password" type="password" id="password" required />
+          <input 
+            v-model="password" 
+            type="password" 
+            id="password" 
+            @input="validatePassword"
+            required 
+          />
+          <div class="password-requirements" :class="{ invalid: !isPasswordValid }">
+            Password must contain:
+            <ul>
+              <li :class="{ valid: hasMinLength }">At least 8 characters</li>
+              <li :class="{ valid: hasUpperCase }">At least one uppercase letter</li>
+              <li :class="{ valid: hasLowerCase }">At least one lowercase letter</li>
+              <li :class="{ valid: hasNumber }">At least one number</li>
+              <li :class="{ valid: hasSpecialChar }">At least one special character (!@#$%^&*)</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <label for="home_page">Home Page:</label>
+          <input v-model="home_page" type="url" id="home_page" required />
         </div>
         <div>
           <label for="photo">Profile Picture:</label>
-          <input ref="photo" type="file" id="photo" @change="handleFileChange" />
+          <input 
+            type="file" 
+            id="photo" 
+            ref="photo" 
+            @change="handleFileChange" 
+            accept="image/*"
+          />
+        </div>
+        <div class="captcha-container">
+          <img :src="captchaImage" alt="CAPTCHA" @click="refreshCaptcha" />
+          <button type="button" @click="refreshCaptcha" class="refresh-button">
+            ↻ Refresh
+          </button>
+          <input 
+            v-model="captcha" 
+            type="text" 
+            placeholder="Enter captcha text" 
+            required 
+          />
         </div>
         <button type="submit">Register</button>
         <button type="button" @click="cancelRegister">Cancel</button>
@@ -36,22 +73,38 @@
       <h2>Login</h2>
       <form @submit.prevent="loginUser">
         <div>
-          <label for="username">Username:</label>
-          <input v-model="username" type="text" id="username" required />
+          <label for="login-username">Username:</label>
+          <input v-model="username" type="text" id="login-username" required />
         </div>
         <div>
-          <label for="password">Password:</label>
-          <input v-model="password" type="password" id="password" required />
+          <label for="login-password">Password:</label>
+          <input v-model="password" type="password" id="login-password" required />
+        </div>
+        <div class="captcha-container">
+          <img :src="loginCaptchaImage" alt="CAPTCHA" @click="refreshLoginCaptcha" />
+          <button type="button" @click="refreshLoginCaptcha" class="refresh-button">
+            ↻ Refresh
+          </button>
+          <input 
+            v-model="loginCaptcha" 
+            type="text" 
+            placeholder="Enter captcha text" 
+            required 
+          />
         </div>
         <button type="submit">Login</button>
         <button type="button" @click="cancelLogin">Cancel</button>
       </form>
     </div>
   </div>
+  <div v-else>
+    <button @click="logout" class="logout-button">Logout</button>
+  </div>
 </template>
 
 <script>
 import axios from 'axios';
+import '../assets/styles/auth.css';
 
 export default {
   props: {
@@ -64,20 +117,67 @@ export default {
       username: '',
       password: '',
       email: '',
-      photo: null
+      photo: null,
+      home_page: '',
+      captchaImage: null,
+      captcha: '',
+      loginCaptchaImage: null,
+      loginCaptcha: '',
+      hasMinLength: false,
+      hasUpperCase: false,
+      hasLowerCase: false,
+      hasNumber: false,
+      hasSpecialChar: false,
     };
+  },
+  computed: {
+    isPasswordValid() {
+      return this.hasMinLength && 
+             this.hasUpperCase && 
+             this.hasLowerCase && 
+             this.hasNumber && 
+             this.hasSpecialChar;
+    }
   },
   methods: {
     handleFileChange(event) {
-      this.photo = event.target.files[0];
+      const file = event.target.files[0];
+      if (file) {
+        /* File size check - 5MB limit*/
+        if (file.size > 5000000) { // 5MB limit
+          alert('File is too large. Please choose a file under 5MB.');
+          event.target.value = '';
+          return;
+        }
+        /* Check file type */
+        if (!file.type.startsWith('image/')) {
+          alert('Please select an image file.');
+          event.target.value = '';
+          return;
+        }
+        this.photo = file;
+      }
     },
 
     async loginUser() {
+      if (!this.loginCaptcha) {
+        alert('Please enter the captcha');
+        return;
+      }
+
       try {
         const response = await axios.post('http://127.0.0.1:8000/api/login/', {
           username: this.username,
-          password: this.password
+          password: this.password,
+          captcha: this.loginCaptcha.trim()
+        }, {
+          withCredentials: true,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          }
         });
+
         localStorage.setItem('authToken', response.data.access_token);
         this.$emit('login');
         this.showLogin = false;
@@ -85,28 +185,93 @@ export default {
         alert('Login successful!');
       } catch (error) {
         console.error("Login error:", error);
-        alert('Login failed, please check your credentials.');
+        if (error.response?.data?.detail) {
+          alert(error.response.data.detail);
+          if (error.response.data.detail.includes('captcha')) {
+            await this.refreshLoginCaptcha();
+            this.loginCaptcha = '';
+          }
+        } else {
+          alert('Login failed, please try again.');
+        }
       }
     },
 
     async registerUser() {
+      if (!this.captcha) {
+        alert('Please enter the captcha');
+        return;
+      }
+
+      if (!this.isPasswordValid) {
+        alert('Please ensure your password meets all requirements');
+        return;
+      }
+
       try {
         const formData = new FormData();
         formData.append('username', this.username);
         formData.append('email', this.email);
         formData.append('password', this.password);
-
+        formData.append('profile.home_page', this.home_page);
+        formData.append('captcha', this.captcha.trim());
+        
         if (this.photo) {
-          formData.append('photo', this.photo);
+          formData.append('profile.photo', this.photo);
         }
 
-        await axios.post('http://127.0.0.1:8000/api/register/', formData);
+        const response = await axios.post('http://127.0.0.1:8000/api/register/', formData, {
+          withCredentials: true,
+          headers: {
+            'Accept': 'application/json',
+          }
+        });
+
+        console.log('Registration response:', response.data);
         alert('Registration successful! You can now log in.');
         this.showRegister = false;
         this.clearFields();
       } catch (error) {
         console.error("Registration error:", error);
-        alert('Registration failed. Please ensure your details are correct and try again.');
+        if (error.response?.data?.detail === "Invalid captcha") {
+          alert('Invalid captcha, please try again');
+          await this.refreshCaptcha();
+          this.captcha = '';
+        } else {
+          alert(`Registration failed: ${error.response?.data?.detail || 'Please ensure your details are correct'}`);
+        }
+      }
+    },
+
+    async refreshCaptcha() {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/register/', {
+          withCredentials: true,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          }
+        });
+        this.captchaImage = response.data.captcha_image;
+      } catch (error) {
+        console.error('Failed to load registration captcha:', error);
+        this.captchaImage = null;
+      }
+    },
+
+    async refreshLoginCaptcha() {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/login/', {
+          withCredentials: true,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          }
+        });
+        this.loginCaptchaImage = response.data.captcha_image;
+      } catch (error) {
+        console.error('Failed to load login captcha:', error);
+        this.loginCaptchaImage = null;
       }
     },
 
@@ -131,66 +296,42 @@ export default {
       this.password = '';
       this.email = '';
       this.photo = null;
+      this.home_page = '';
+      this.captcha = '';
+      this.loginCaptcha = '';
+      this.refreshCaptcha();
+      if (this.showLogin) {
+        this.refreshLoginCaptcha();
+      }
+    },
+
+    validatePassword() {
+      this.hasMinLength = this.password.length >= 8;
+      this.hasUpperCase = /[A-Z]/.test(this.password);
+      this.hasLowerCase = /[a-z]/.test(this.password);
+      this.hasNumber = /[0-9]/.test(this.password);
+      this.hasSpecialChar = /[!@#$%^&*]/.test(this.password);
+    },
+  },
+  watch: {
+    showLogin(newVal) {
+      if (newVal) {
+        this.refreshLoginCaptcha();
+      }
+    },
+    showRegister(newVal) {
+      if (newVal) {
+        this.refreshCaptcha();
+      }
+    }
+  },
+  mounted() {
+    if (this.showRegister) {
+      this.refreshCaptcha();
+    } else if (this.showLogin) {
+      this.refreshLoginCaptcha();
     }
   }
 };
 </script>
 
-<style scoped>
-.auth-buttons button {
-  margin-right: 10px;
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.auth-buttons button:hover {
-  background-color: #0056b3;
-}
-
-form {
-  margin-top: 20px;
-}
-
-form div {
-  margin-bottom: 15px;
-}
-
-form label {
-  display: block;
-  font-weight: bold;
-}
-
-form input {
-  width: 100%;
-  padding: 8px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-form button {
-  margin-top: 10px;
-  padding: 10px 20px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-form button:hover {
-  background-color: #218838;
-}
-
-form button[type="button"] {
-  background-color: #dc3545;
-}
-
-form button[type="button"]:hover {
-  background-color: #c82333;
-}
-</style>

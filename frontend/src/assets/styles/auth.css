@@ -1,0 +1,174 @@
+.auth-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    text-align: center;
+}
+
+.auth-buttons {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.auth-buttons button {
+    margin-right: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.register-button,
+.login-button {
+    background-color: #28a745;
+    /* Green */
+    color: white;
+}
+
+.register-button:hover,
+.login-button:hover {
+    background-color: #218838;
+}
+
+.logout-button {
+    background-color: #dc3545;
+    /* Red */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.logout-button:hover {
+    background-color: #c82333;
+}
+
+form {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+form div {
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+form label {
+    display: block;
+    font-weight: bold;
+}
+
+form input {
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+form button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #218838;
+}
+
+form button[type="button"] {
+    background-color: #dc3545;
+}
+
+form button[type="button"]:hover {
+    background-color: #c82333;
+}
+
+.captcha-container {
+    margin: 15px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.captcha-container img {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    max-width: 280px;
+    height: auto;
+}
+
+.captcha-container input {
+    width: 100%;
+    max-width: 280px;
+    text-align: center;
+    font-size: 16px;
+    letter-spacing: 2px;
+}
+
+.refresh-button {
+    background: #459fff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.refresh-button:hover {
+    background: #1879a3;
+}
+
+.password-requirements {
+    margin-top: 5px;
+    font-size: 0.8em;
+    color: #666;
+    text-align: left;
+}
+
+.password-requirements.invalid {
+    color: #dc3545;
+}
+
+.password-requirements ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 5px 0;
+}
+
+.password-requirements li {
+    margin: 3px 0;
+    padding-left: 20px;
+    position: relative;
+}
+
+.password-requirements li::before {
+    content: '✕';
+    position: absolute;
+    left: 0;
+    color: #dc3545;
+}
+
+.password-requirements li.valid::before {
+    content: '✓';
+    color: #28a745;
+}
+
+.password-requirements li.valid {
+    color: #28a745;
+}

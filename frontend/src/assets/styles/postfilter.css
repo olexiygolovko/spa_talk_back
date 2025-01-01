@@ -1,0 +1,21 @@
+.post-filter {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.post-filter input,
+.post-filter select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.post-filter input {
+    width: 150px;
+}
+
+.post-filter select {
+    width: 120px;
+}

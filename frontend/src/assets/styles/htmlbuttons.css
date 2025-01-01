@@ -1,0 +1,26 @@
+.html-buttons {
+    margin-bottom: 10px;
+    display: flex;
+    gap: 5px;
+}
+
+.html-buttons button {
+    background-color: #5b6065 !important;
+    color: white;
+    padding: 5px 10px;
+    margin-right: 5px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    text-transform: uppercase;
+    min-width: 60px;
+}
+
+.html-buttons button:hover {
+    background-color: #85888b !important; 
+}
+
+.html-buttons i {
+    font-size: 14px;
+}
