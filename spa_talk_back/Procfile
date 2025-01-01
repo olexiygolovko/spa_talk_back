@@ -1,1 +1,1 @@
-web: gunicorn crm_oxi.wsgi:application
+web: gunicorn spa_talk_back.wsgi:application
