@@ -178,15 +178,15 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'comments', 'media'))
 
 
-if DEBUG:
-    print(f"MEDIA_ROOT path: {MEDIA_ROOT}")
-    print(f"BASE_DIR path: {BASE_DIR}")
+# if DEBUG:
+#     print(f"MEDIA_ROOT path: {MEDIA_ROOT}")
+#     print(f"BASE_DIR path: {BASE_DIR}")
 
-if DEBUG:
-    MEDIA_URL = 'http://127.0.0.1:8000/media/'
+# if DEBUG:
+#     MEDIA_URL = 'http://127.0.0.1:8000/media/'
 
-else:
-    MEDIA_URL = 'https://spa-talk-back.onrender.com/media/'
+# else:
+#     MEDIA_URL = 'https://spa-talk-back.onrender.com/media/'
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
@@ -208,6 +208,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8080",
     'https://spa-talk-back.onrender.com',
     'https://talk-back.onrender.com/',
+    'http://127.0.0.1:8000',
 ]
 
 
@@ -221,7 +222,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,  # For pagination, the number of posts per page
+    'PAGE_SIZE': 25,  # For pagination, the number of posts per page
 }
 
 
@@ -238,24 +239,6 @@ CSRF_COOKIE_SAMESITE = 'None'
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 
-CORS_ALLOWED_ORIGINS = [
-    'https://spa-talk-back.onrender.com',
-    'https://talk-back.onrender.com',
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    'https://talk-back.onrender.com',
-    'http://127.0.0.1:8000'
-]
-
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    'http://localhost:8080',
-    'http://127.0.0.1:8080',
-    'https://spa-talk-back.onrender.com',
-    'https://talk-back.onrender.com',
-    'http://127.0.0.1:8000',
-]
 
 CORS_ALLOW_METHODS = [
     'DELETE',
@@ -267,10 +250,10 @@ CORS_ALLOW_METHODS = [
 ] 
 
 
-if not DEBUG:
-    AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME')
-    AWS_DEFAULT_ACL = None
-    AWS_S3_VERIFY = True
+# if not DEBUG:
+#     AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME')
+#     AWS_DEFAULT_ACL = None
+#     AWS_S3_VERIFY = True
 
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
