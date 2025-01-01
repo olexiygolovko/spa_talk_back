@@ -18,6 +18,7 @@
 import '../assets/styles/replyform.css';
 import axios from 'axios';
 import HtmlButtons from './HTMLButtons.vue';
+import { API_URLS } from '../config/api';
 
 export default {
   components: {
@@ -80,16 +81,15 @@ export default {
       return text;
     },
 
-    submitReply() {
-      try {
-        this.validateHTML(this.replyText);
-        const token = localStorage.getItem("authToken");
-        if (!token) {
-          alert("You are not authenticated. Please log in first.");
-          return;
-        }
+    async submitReply() {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        alert("You are not authenticated. Please log in first.");
+        return;
+      }
 
-        axios.post('http://127.0.0.1:8000/api/comments/', {
+      try {
+        const response = await axios.post(API_URLS.COMMENTS, {
           post: this.postId,
           text: this.replyText,
           parent: this.parentId
@@ -97,21 +97,17 @@ export default {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
-        .then(response => {
-          this.replyText = '';
-          this.$emit('onReplySubmitted');
-        })
-        .catch(error => {
-          console.error("Error submitting reply:", error);
-          if (error.response?.status === 401) {
-            alert("Authentication error. Please log in again.");
-          } else {
-            alert("Failed to submit reply, please try again.");
-          }
         });
+        
+        this.replyText = '';
+        this.$emit('onReplySubmitted');
       } catch (error) {
-        alert(error.message);
+        console.error("Error submitting reply:", error);
+        if (error.response?.status === 401) {
+          alert("Authentication error. Please log in again.");
+        } else {
+          alert("Failed to submit reply, please try again.");
+        }
       }
     }
   }

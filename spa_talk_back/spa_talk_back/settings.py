@@ -36,7 +36,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = ['spa-talk-back.onrender.com', 'https://talk-back.onrender.com', '127.0.0.1', 'http://127.0.0.1:8000',
-                 'localhost', 'http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:8080', 'http://127.0.0.1:8080',]
+                 'http://0.0.0.0:10000', 'localhost', 'http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:8080', 'http://127.0.0.1:8080',]
 
 
 # Application definition
@@ -232,6 +232,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'https://talk-back.onrender.com',
+    'http://127.0.0.1:8000'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -241,6 +242,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:8080',
     'https://spa-talk-back.onrender.com',
     'https://talk-back.onrender.com',
+    'http://127.0.0.1:8000',
 ]
 
 CORS_ALLOW_METHODS = [
