@@ -171,6 +171,35 @@ export default {
       }
     },
 
+    async submitComment() {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        alert("You are not authenticated. Please log in first.");
+        return;
+      }
+
+      try {
+        const response = await axios.post(API_URLS.COMMENTS, {
+          post: this.postId,
+          text: this.commentText
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        this.commentText = '';
+        this.showCommentForm = false;
+        this.fetchComments();
+      } catch (error) {
+        console.error("Error submitting comment:", error);
+        if (error.response?.status === 401) {
+          alert("Authentication error. Please log in again.");
+        } else {
+          alert("Failed to submit comment, please try again.");
+        }
+      }
+    },
+
     showReplyForm(index) {
       try {
         this.replyFormIndex = index;
@@ -261,7 +290,7 @@ export default {
     validateAndSubmit() {
       try {
         this.validateHTML(this.commentText);
-        this.submitComment();
+        this.submitComment(); // Теперь этот метод существует
       } catch (error) {
         alert(error.message);
       }
