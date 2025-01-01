@@ -10,9 +10,8 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from io import BytesIO
 import sys
 
+
 # Extending the standard User model, adding additional fields without changing User
-
-
 class Profile(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="profile", verbose_name="User")
@@ -24,9 +23,8 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.user.username}'s Profile"
 
+
 # Django signal that is fired after a User is saved.
-
-
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -35,53 +33,49 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
     else:
         instance.profile.save()
 
+
 # Checks and resizes the uploaded image
-
-
 def validate_image_size(image):
     if isinstance(image, InMemoryUploadedFile):
-        img = Image.open(image)
-        if img.height > 240 or img.width > 320:
-            # Сreate a thumbnail
-            output_size = (320, 240)
-            img.thumbnail(output_size)
+        try:
+            with Image.open(image) as img:
+                if img.height > 240 or img.width > 320:
+                    output_size = (320, 240)
+                    img.thumbnail(output_size)
 
-            # Save the modified image to a byte stream
-            output = BytesIO()
+                    output = BytesIO()
 
-            # Save the image in the appropriate format
-            if image.content_type == 'image/jpeg':
-                img.save(output, format='JPEG', quality=85)
-            elif image.content_type == 'image/png':
-                img.save(output, format='PNG')
-            elif image.content_type == 'image/gif':
-                img.save(output, format='GIF')
+                    if image.content_type == 'image/jpeg':
+                        img.save(output, format='JPEG', quality=85)
+                    elif image.content_type == 'image/png':
+                        img.save(output, format='PNG')
+                    elif image.content_type == 'image/gif':
+                        img.save(output, format='GIF')
 
-            # Create a new InMemoryUploadedFile instance with the modified image
-            output.seek(0)
-            image = InMemoryUploadedFile(
-                output,
-                'ImageField',
-                f"{image.name.split('.')[0]}_resized.{image.name.split('.')[1]}",
-                image.content_type,
-                sys.getsizeof(output),
-                None
-            )
-        img.close()
-    return image
+                    output.seek(0)
+                    return InMemoryUploadedFile(
+                        output,
+                        'ImageField',
+                        f"{image.name.split('.')[0]}_resized.{image.name.split('.')[-1]}",
+                        image.content_type,
+                        output.getbuffer().nbytes,
+                        None
+                    )
+            return image 
+        except Exception as e:
+            print(f"Error processing image: {e}")
+            raise ValidationError("Error processing image file")
+
 
 # Checks the extension of the file being downloaded
-
-
 def validate_file_extension(value):
     ext = os.path.splitext(value.name)[1]
     valid_extensions = ['.txt']
     if ext.lower() not in valid_extensions:
         raise ValidationError('Only TXT files are allowed.')
 
+
 # Checks the size of the file being uploaded
-
-
 def validate_file_size(value):
     if value.size > 102400:  # 100kb in bytes
         raise ValidationError('File size cannot exceed 100KB.')
@@ -123,8 +117,19 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
         if self.image:
-            self.image = validate_image_size(self.image)
+            try:
+                processed_image = validate_image_size(self.image)
+                if processed_image and processed_image != self.image:
+                    self.image = processed_image
+            except Exception as e:
+                print(f"Error processing image: {e}")
         super().save(*args, **kwargs)
+
+    @property
+    def image_url(self):
+        if self.image:
+            return self.image.url
+        return None
 
 
 class Comment(models.Model):
@@ -175,5 +180,11 @@ class Comment(models.Model):
     # Process the image before saving ↓
     def save(self, *args, **kwargs):
         if self.image:
-            self.image = validate_image_size(self.image)
+            try:
+                processed_image = validate_image_size(self.image)
+                if processed_image != self.image:
+                    self.image = processed_image
+            except Exception as e:
+                print(f"Error saving comment image: {e}")
+                raise
         super().save(*args, **kwargs)

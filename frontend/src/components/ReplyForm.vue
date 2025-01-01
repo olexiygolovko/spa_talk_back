@@ -7,6 +7,27 @@
       ref="replyTextarea"
       required
     ></textarea>
+    <div class="form-group">
+      <label for="image">Image (max 320x240px, JPG/GIF/PNG):</label>
+      <input 
+        type="file" 
+        ref="image" 
+        @change="handleFileChange('image', $event)" 
+        accept="image/jpeg,image/png,image/gif"
+      />
+    </div>
+    <div v-if="replyData.image" class="image-preview">
+      <img :src="getMediaUrl(replyData.image)" alt="Image preview" />
+    </div>
+    <div class="form-group">
+      <label for="file">File (max 100KB, TXT only):</label>
+      <input 
+        type="file" 
+        ref="file" 
+        @change="handleFileChange('file', $event)" 
+        accept=".txt"
+      />
+    </div>
     <div class="form-buttons">
       <button type="submit" class="post-reply-button">Post Reply</button>
       <button type="button" @click="$emit('cancel')" class="cancel-button">Cancel</button>
@@ -27,7 +48,11 @@ export default {
   props: ['postId', 'parentId'],
   data() {
     return {
-      replyText: ''
+      replyText: '',
+      replyData: {
+        image: null,
+        file: null
+      }
     };
   },
   methods: {
@@ -81,6 +106,34 @@ export default {
       return text;
     },
 
+    handleFileChange(field, event) {
+      const file = event.target.files[0];
+      if (field === 'image') {
+        if (file.size > 320 * 240) {
+          alert('Image size should not exceed 320x240 pixels');
+          this.$refs.image.value = null;
+          return;
+        }
+        if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
+          alert('Only JPG, PNG, and GIF formats are allowed');
+          this.$refs.image.value = null;
+          return;
+        }
+      } else if (field === 'file') {
+        if (file.size > 100 * 1024) {
+          alert('File size should not exceed 100KB');
+          this.$refs.file.value = null;
+          return;
+        }
+        if (file.type !== 'text/plain') {
+          alert('Only TXT format is allowed');
+          this.$refs.file.value = null;
+          return;
+        }
+      }
+      this.replyData[field] = file;
+    },
+
     async submitReply() {
       const token = localStorage.getItem("authToken");
       if (!token) {
@@ -88,18 +141,28 @@ export default {
         return;
       }
 
+      const formData = new FormData();
+      formData.append('post', this.postId);
+      formData.append('text', this.replyText);
+      formData.append('parent', this.parentId);
+      if (this.replyData.image) {
+        formData.append('image', this.replyData.image);
+      }
+      if (this.replyData.file) {
+        formData.append('file', this.replyData.file);
+      }
+
       try {
-        const response = await axios.post(API_URLS.COMMENTS, {
-          post: this.postId,
-          text: this.replyText,
-          parent: this.parentId
-        }, {
+        const response = await axios.post(API_URLS.COMMENTS, formData, {
           headers: {
+            'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${token}`,
           },
         });
         
         this.replyText = '';
+        this.replyData.image = null;
+        this.replyData.file = null;
         this.$emit('onReplySubmitted');
       } catch (error) {
         console.error("Error submitting reply:", error);
@@ -108,6 +171,22 @@ export default {
         } else {
           alert("Failed to submit reply, please try again.");
         }
+      }
+    },
+
+    getMediaUrl(path) {
+      if (!path || typeof path !== 'string') return '';
+
+      try {
+        const url = new URL(path);
+        return path;
+      } catch (e) {
+        const basePath = process.env.NODE_ENV === 'production'
+          ? 'https://spa-talk-back.onrender.com'
+          : 'http://127.0.0.1:8000';
+        
+        const mediaPath = path.startsWith('/media/') ? path : `/media/${path.replace(/^\//, '')}`;
+        return `${basePath}${mediaPath}`;
       }
     }
   }

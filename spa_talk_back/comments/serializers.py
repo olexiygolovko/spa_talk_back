@@ -69,10 +69,11 @@ class UserSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     comments_count = serializers.SerializerMethodField()
+    image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ['id', 'text', 'user', 'image', 'file', 'created_at', 'updated_at', 'comments_count']
+        fields = ['id', 'text', 'user', 'image', 'image_url', 'file', 'created_at', 'updated_at', 'comments_count']
         read_only_fields = ['user', 'created_at', 'updated_at']
 
     def create(self, validated_data):
@@ -82,6 +83,14 @@ class PostSerializer(serializers.ModelSerializer):
 
     def get_comments_count(self, obj):
         return Comment.objects.filter(post=obj).count()  
+
+    def get_image_url(self, obj):
+        if obj.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+            return obj.image.url
+        return None
 
 
 class CommentSerializer(serializers.ModelSerializer):

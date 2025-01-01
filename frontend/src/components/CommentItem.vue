@@ -18,12 +18,12 @@
       <div class="comment-content">
         <p v-html="sanitizeHTML(comment.text)"></p>
         <div v-if="comment.image" class="image-container">
-          <a :href="comment.image" data-lightbox="comment-images" :data-title="comment.text">
-            <img :src="comment.image" alt="Comment Image" class="comment-image" />
+          <a :href="getMediaUrl(comment.image)" data-lightbox="comment-images" :data-title="comment.text">
+            <img :src="getMediaUrl(comment.image)" alt="Comment Image" class="comment-image" @error="handleImageError" />
           </a>
         </div>
         <div v-if="comment.file" class="file-container">
-          <a :href="comment.file" class="download-link" target="_blank">
+          <a :href="getMediaUrl(comment.file)" class="download-link" target="_blank">
             <i class="fas fa-file-text"></i>
             Download attached file
           </a>
@@ -137,6 +137,24 @@ export default {
     async deleteComment() {
       await axios.delete(API_URLS.COMMENT_DETAIL(this.comment.id), {
       });
+    },
+    getMediaUrl(path) {
+      if (!path || typeof path !== 'string') return '';
+      
+      try {
+        const url = new URL(path);
+        return path;
+      } catch (e) {
+        const basePath = process.env.NODE_ENV === 'production'
+          ? 'https://spa-talk-back.onrender.com'
+          : 'http://127.0.0.1:8000';
+        
+        const mediaPath = path.startsWith('/media/') ? path : `/media/${path.replace(/^\//, '')}`;
+        return `${basePath}${mediaPath}`;
+      }
+    },
+    handleImageError(e) {
+      console.error('Error loading image:', e.target.src);
     }
   }
 };

@@ -1,7 +1,7 @@
 <template>
   <div class="comments-container">
     <div class="comments-header">
-      <div></div> <!-- Пустой div для сохранения пространства слева -->
+      <div></div>
       <button @click="showAddComment" v-if="!showCommentForm" class="add-comment-button">Add Comment</button>
     </div>
     <div v-if="isVisible">
@@ -11,7 +11,26 @@
           v-model="commentText" 
           placeholder="Add a comment"
           ref="commentTextarea"
+          required
         ></textarea>
+        <div class="form-group">
+          <label for="image">Image (max 320x240px, JPG/GIF/PNG):</label>
+          <input 
+            type="file" 
+            ref="image" 
+            @change="handleFileChange('image', $event)" 
+            accept="image/jpeg,image/png,image/gif"
+          />
+        </div>
+        <div class="form-group">
+          <label for="file">File (max 100KB, TXT only):</label>
+          <input 
+            type="file" 
+            ref="file" 
+            @change="handleFileChange('file', $event)" 
+            accept=".txt"
+          />
+        </div>
         <div class="form-buttons">
           <button type="submit" class="post-comment-button">Post Comment</button>
           <button type="button" @click="showCommentForm = false" class="cancel-button">Cancel</button>
@@ -31,7 +50,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axiosInstance from '../config/api';
 import '../assets/styles/comments.css';
 import CommentItem from './CommentItem.vue';
 import HtmlButtons from './HTMLButtons.vue';
@@ -58,7 +77,12 @@ export default {
       commentText: '',
       showCommentForm: false,
       showComments: false,
-      replyToId: null  // Добавьте это поле
+      replyToId: null,
+      commentData: {
+        text: '',
+        image: null,
+        file: null
+      }
     };
   },
   created() {
@@ -66,7 +90,6 @@ export default {
   },
   computed: {
     rootComments() {
-      // Фильтруем только корневые комментарии (без parent)
       return this.comments.filter(comment => !comment.parent);
     }
   },
@@ -77,7 +100,6 @@ export default {
     showComments(newValue) {
       this.$emit('visibility-changed', newValue);
     },
-    // Добавляем наблюдатель за изменениями в массиве комментариев
     comments: {
       handler(newComments) {
         this.$emit('update-count', newComments.length);
@@ -87,18 +109,8 @@ export default {
   },
   methods: {
     async fetchComments() {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        alert("You are not authenticated. Please log in first.");
-        return;
-      }
-
       try {
-        const response = await axios.get(API_URLS.POST_COMMENTS(this.postId), {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axiosInstance.get(`/posts/${this.postId}/comments/`);
         this.comments = response.data;
         // Update the count after the comments have been fetched
         this.$nextTick(() => {
@@ -179,19 +191,31 @@ export default {
         return;
       }
 
+      const formData = new FormData();
+      formData.append('post', this.postId);
+      formData.append('text', this.commentText);
+      if (this.commentData.image) {
+        formData.append('image', this.commentData.image);
+      }
+      if (this.commentData.file) {
+        formData.append('file', this.commentData.file);
+      }
+      if (this.replyToId) {
+        formData.append('parent', this.replyToId);
+      }
+
       try {
-        const response = await axios.post(API_URLS.COMMENTS, {
-          post: this.postId,
-          text: this.commentText,
-          parent: this.replyToId || null  
-        }, {
+        const response = await axios.post(API_URLS.COMMENTS, formData, {
           headers: {
+            'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${token}`,
           },
         });
         this.commentText = '';
+        this.commentData.image = null;
+        this.commentData.file = null;
         this.showCommentForm = false;
-        this.replyToId = null; // Reset the replyToId
+        this.replyToId = null;
         this.fetchComments();
       } catch (error) {
         console.error("Error submitting comment:", error);
@@ -204,7 +228,7 @@ export default {
     },
 
     showReplyForm(commentId) {
-      this.replyToId = commentId;  // Сохраняем ID комментария, на который отвечаем
+      this.replyToId = commentId; 
       this.showCommentForm = true;
     },
 
@@ -298,10 +322,35 @@ export default {
     validateAndSubmit() {
       try {
         this.validateHTML(this.commentText);
-        this.submitComment(); // Теперь этот метод существует
+        this.submitComment();
       } catch (error) {
         alert(error.message);
       }
+    },
+
+    handleFileChange(field, event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (field === 'image') {
+        if (!file.type.match('image.*')) {
+          alert('Please select an image file (JPG, GIF, or PNG)');
+          event.target.value = '';
+          return;
+        }
+      } else if (field === 'file') {
+        if (file.type !== 'text/plain') {
+          alert('Please select a TXT file');
+          event.target.value = '';
+          return;
+        }
+        if (file.size > 102400) { // 100KB
+          alert('File size must be less than 100KB');
+          event.target.value = '';
+          return;
+        }
+      }
+      this.commentData[field] = file;
     }
   }
 };

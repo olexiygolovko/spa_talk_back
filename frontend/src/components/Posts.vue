@@ -63,8 +63,8 @@
       </div>
       <p v-html="sanitizeHTML(post.text)"></p>
       <div v-if="post.image" class="image-container">
-        <a :href="post.image" data-lightbox="post-images" :data-title="post.text">
-          <img :src="post.image" alt="Post Image" class="post-image" />
+        <a :href="getMediaUrl(post.image)" data-lightbox="post-images" :data-title="post.text">
+          <img :src="getMediaUrl(post.image)" alt="Post Image" class="post-image" @error="handleImageError" />
         </a>
       </div>
       <div v-if="post.file" class="file-container">
@@ -170,11 +170,12 @@ export default {
       if (!file) return;
 
       if (field === 'image') {
-        if (!file.type.match('image.*')) {
+        if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
           alert('Please select an image file (JPG, GIF, or PNG)');
           event.target.value = '';
           return;
         }
+
       } else if (field === 'file') {
         if (file.type !== 'text/plain') {
           alert('Please select a TXT file');
@@ -189,46 +190,69 @@ export default {
       }
       this.newPost[field] = file;
     },
-    createPost() {
+    async createPost() {
       const token = localStorage.getItem("authToken");
       if (!token) {
         alert("You are not authenticated. Please log in first.");
         return;
       }
 
-      const formData = new FormData();
-      formData.append("text", this.newPost.text);
+      try {
+        const formData = new FormData();
+        formData.append("text", this.newPost.text);
 
-      if (this.newPost.image) {
-        formData.append("image", this.newPost.image);
-      }
+        if (this.newPost.image) {
+          // Проверяем размер и тип изображения
+          const img = new Image();
+          img.src = URL.createObjectURL(this.newPost.image);
+          await new Promise((resolve) => {
+            img.onload = () => {
+              if (img.width > 320 || img.height > 240) {
+                alert('Image dimensions must not exceed 320x240 pixels');
+                throw new Error('Invalid image dimensions');
+              }
+              resolve();
+            };
+          });
+          formData.append("image", this.newPost.image);
+        }
 
-      if (this.newPost.file) {
-        formData.append("file", this.newPost.file);
-      }
+        if (this.newPost.file) {
+        
+          if (this.newPost.file.size > 102400) { // 100KB
+            alert('File size must not exceed 100KB');
+            throw new Error('File too large');
+          }
+          if (!this.newPost.file.type.includes('text/plain')) {
+            alert('Only text files (.txt) are allowed');
+            throw new Error('Invalid file type');
+          }
+          formData.append("file", this.newPost.file);
+        }
 
-      axios
-        .post(API_URLS.POSTS, formData, {
+        const response = await axios.post(API_URLS.POSTS, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
           },
-        })
-        .then((response) => {
-          this.posts.unshift(response.data); // Add the new post to the beginning of the list
-          this.newPost.text = "";
-          this.newPost.image = null;
-          this.newPost.file = null;
-          this.showCreatePostForm = false; // Hide the form after submission
-        })
-        .catch((error) => {
-          console.error("Error creating post:", error);
-          if (error.response?.status === 401) {
-            alert("Authentication error. Please log in again.");
-          } else {
-            alert("Failed to create post, please try again.");
-          }
         });
+
+        this.posts.unshift(response.data);
+        this.newPost.text = "";
+        this.newPost.image = null;
+        this.newPost.file = null;
+        this.showCreatePostForm = false;
+
+      } catch (error) {
+        console.error("Error creating post:", error);
+        if (error.response?.status === 401) {
+          alert("Authentication error. Please log in again.");
+        } else if (error.message) {
+          alert(error.message);
+        } else {
+          alert("Failed to create post, please try again.");
+        }
+      }
     },
     insertTag(template) {
       const textarea = this.$refs.postTextarea;
@@ -318,6 +342,24 @@ export default {
     },
     updateCommentsVisibility(postId, visible) {
       this.commentsVisibility[postId] = visible;
+    },
+    getMediaUrl(path) {
+      if (!path || typeof path !== 'string') return '';
+      
+      try {
+        const url = new URL(path);
+        return path;
+      } catch (e) {
+        const basePath = process.env.NODE_ENV === 'production'
+          ? 'https://spa-talk-back.onrender.com'
+          : 'http://127.0.0.1:8000';
+        
+        const mediaPath = path.startsWith('/media/') ? path : `/media/${path.replace(/^\//, '')}`;
+        return `${basePath}${mediaPath}`;
+      }
+    },
+    handleImageError(e) {
+      console.error('Error loading image:', e.target.src);
     }
   },
 };

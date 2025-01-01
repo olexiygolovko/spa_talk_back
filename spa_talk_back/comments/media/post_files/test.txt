@@ -1,0 +1,2 @@
+A specification is a document that lays out in detail what functionality 
+or attributes a product must include before delivery.
