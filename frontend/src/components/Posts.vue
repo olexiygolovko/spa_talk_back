@@ -94,6 +94,7 @@ import axios from "axios";
 import Comments from "./Comments.vue";
 import HtmlButtons from './HTMLButtons.vue';  // Changed name format
 import PostFilter from './PostFilter.vue';
+import { API_URLS } from '../config/api';
 
 export default {
   data() {
@@ -128,7 +129,7 @@ export default {
       this.activeFilters = filters;
       this.fetchPosts(); // Fetch posts with new filters
     },
-    fetchPosts(url = "http://127.0.0.1:8000/api/posts/") {
+    fetchPosts(url = API_URLS.POSTS) {
       const token = localStorage.getItem("authToken");
       if (!token) {
         alert("You are not authenticated. Please log in first.");
@@ -207,7 +208,7 @@ export default {
       }
 
       axios
-        .post("http://127.0.0.1:8000/api/posts/", formData, {
+        .post(API_URLS.POSTS, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,

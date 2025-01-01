@@ -104,6 +104,7 @@
 
 <script>
 import axios from 'axios';
+import { API_URLS } from '../config/api';
 import '../assets/styles/auth.css';
 
 export default {
@@ -166,7 +167,7 @@ export default {
       }
 
       try {
-        const response = await axios.post('http://127.0.0.1:8000/api/login/', {
+        const response = await axios.post(API_URLS.LOGIN, {
           username: this.username,
           password: this.password,
           captcha: this.loginCaptcha.trim()
@@ -220,7 +221,7 @@ export default {
           formData.append('profile.photo', this.photo);
         }
 
-        const response = await axios.post('http://127.0.0.1:8000/api/register/', formData, {
+        const response = await axios.post(API_URLS.REGISTER, formData, {
           withCredentials: true,
           headers: {
             'Accept': 'application/json',
@@ -245,7 +246,7 @@ export default {
 
     async refreshCaptcha() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/register/', {
+        const response = await axios.get(API_URLS.REGISTER, {
           withCredentials: true,
           headers: {
             'Accept': 'application/json',
@@ -261,7 +262,7 @@ export default {
 
     async refreshLoginCaptcha() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/login/', {
+        const response = await axios.get(API_URLS.LOGIN, {
           withCredentials: true,
           headers: {
             'Accept': 'application/json',

@@ -35,6 +35,7 @@ import axios from 'axios';
 import '../assets/styles/comments.css';
 import CommentItem from './CommentItem.vue';
 import HtmlButtons from './HTMLButtons.vue';
+import { API_URLS } from '../config/api';
 
 export default {
   props: {
@@ -84,63 +85,92 @@ export default {
     }
   },
   methods: {
-    fetchComments() {
+    async fetchComments() {
       const token = localStorage.getItem("authToken");
       if (!token) {
         alert("You are not authenticated. Please log in first.");
         return;
       }
 
-      axios.get(`http://127.0.0.1:8000/api/posts/${this.postId}/comments/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then(response => {
-          this.comments = response.data;
-          // Update the count after the comments have been fetched
-          this.$nextTick(() => {
-            this.$emit('update-count', this.comments.length);
-          });
-        })
-        .catch(error => {
-          console.error("Error fetching comments:", error);
-          this.comments = [];
-          this.$emit('update-count', 0);
-          if (error.response?.status === 401) {
-            alert("Authentication error. Please log in again.");
-          }
+      try {
+        const response = await axios.get(API_URLS.POST_COMMENTS(this.postId), {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
+        this.comments = response.data;
+        // Update the count after the comments have been fetched
+        this.$nextTick(() => {
+          this.$emit('update-count', this.comments.length);
+        });
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+        this.comments = [];
+        this.$emit('update-count', 0);
+        if (error.response?.status === 401) {
+          alert("Authentication error. Please log in again.");
+        }
+      }
     },
-    submitComment() {
+
+    async createComment() {
       const token = localStorage.getItem("authToken");
       if (!token) {
         alert("You are not authenticated. Please log in first.");
         return;
       }
 
-      axios.post('http://127.0.0.1:8000/api/comments/', {
-        post: this.postId,
-        text: this.commentText
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then(response => {
-          this.commentText = '';
-          this.showCommentForm = false; // Hide the form after submission
-          this.fetchComments(); // This will update the comments list
-        })
-        .catch(error => {
-          console.error("Error submitting comment:", error);
-          if (error.response?.status === 401) {
-            alert("Authentication error. Please log in again.");
-          } else {
-            alert("Failed to submit comment, please try again.");
-          }
+      try {
+        const response = await axios.post(API_URLS.COMMENTS, {
+          post: this.postId,
+          text: this.commentText
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
+        this.commentText = '';
+        this.showCommentForm = false; // Hide the form after submission
+        this.fetchComments(); // This will update the comments list
+      } catch (error) {
+        console.error("Error submitting comment:", error);
+        if (error.response?.status === 401) {
+          alert("Authentication error. Please log in again.");
+        } else {
+          alert("Failed to submit comment, please try again.");
+        }
+      }
     },
+
+    async replyToComment() {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        alert("You are not authenticated. Please log in first.");
+        return;
+      }
+
+      try {
+        const response = await axios.post(API_URLS.COMMENTS, {
+          post: this.postId,
+          text: this.commentText
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        this.commentText = '';
+        this.showCommentForm = false; // Hide the form after submission
+        this.fetchComments(); // This will update the comments list
+      } catch (error) {
+        console.error("Error submitting comment:", error);
+        if (error.response?.status === 401) {
+          alert("Authentication error. Please log in again.");
+        } else {
+          alert("Failed to submit comment, please try again.");
+        }
+      }
+    },
+
     showReplyForm(index) {
       try {
         this.replyFormIndex = index;

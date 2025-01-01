@@ -1,0 +1,12 @@
+services:
+  - type: web 
+    name: spa-talk-back-frontend
+    buildCommand: npm install && npm run build  # Создает dist папку
+    envVars:  
+      - key: NODE_VERSION
+        value: "16"
+    staticPublishPath: /                       # Где файлы будут доступны на сервере
+    routes:  
+      - type: rewrite
+        source: /*
+        destination: /index.html
