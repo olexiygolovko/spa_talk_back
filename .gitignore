@@ -1,8 +1,8 @@
 .env
 .vscode
 .venv/
-media/
 media/*
+!media/.gitkeep
 node_modules/
 ../.venv/
 venv
