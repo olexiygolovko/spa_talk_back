@@ -134,7 +134,7 @@ export default {
       }
 
       try {
-        const response = await axios.post(API_URLS.COMMENTS, {
+        const response = await axiosInstance.post(API_URLS.COMMENTS, {
           post: this.postId,
           text: this.commentText
         }, {
@@ -163,7 +163,7 @@ export default {
       }
 
       try {
-        const response = await axios.post(API_URLS.COMMENTS, {
+        const response = await axiosInstance.post(API_URLS.COMMENTS, {
           post: this.postId,
           text: this.commentText
         }, {
@@ -205,7 +205,7 @@ export default {
       }
 
       try {
-        const response = await axios.post(API_URLS.COMMENTS, formData, {
+        const response = await axiosInstance.post(API_URLS.COMMENTS, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${token}`,

@@ -62,6 +62,7 @@
 import ReplyForm from './ReplyForm.vue';
 import '../assets/styles/commetitem.css';
 import { API_URLS } from '../config/api';
+import axiosInstance from '../config/api';  // Добавить этот импорт
 
 export default {
   name: 'CommentItem',
@@ -135,8 +136,7 @@ export default {
       return div.innerHTML;
     },
     async deleteComment() {
-      await axios.delete(API_URLS.COMMENT_DETAIL(this.comment.id), {
-      });
+      await axiosInstance.delete(API_URLS.COMMENT_DETAIL(this.comment.id));
     },
     getMediaUrl(path) {
       if (!path || typeof path !== 'string') return '';
