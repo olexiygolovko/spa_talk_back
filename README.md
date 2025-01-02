@@ -21,8 +21,8 @@
     To run on a local repository:
 
   Clone the repository:
-- git clone https://github.com/olexiygolovko/spa_talk_back.git
-- cd spa_talk_back
+# git clone https://github.com/olexiygolovko/spa_talk_back.git
+# cd spa_talk_back
 
   Creating a virtual environment:
 - python -m venv venv
