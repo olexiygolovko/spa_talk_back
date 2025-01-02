@@ -24,9 +24,6 @@
 ```bash
 git clone https://github.com/olexiygolovko/spa_talk_back.git
 ```
-```bash
-cd spa_talk_back
-```
 ### 2. Creating a virtual environment:
 ```bash
 python -m venv venv
@@ -42,6 +39,9 @@ source venv/bin/activate
 ```
 
 ### 4. Installing dependencies:
+```bash
+cd spa_talk_back
+```
 ```bash
 pip install -r requirements.txt
 ```
@@ -59,30 +59,33 @@ python makemigrations
 ```bash
 python manage.py migrate
 ```
-
 ### 7. Launching the development server
+```bash
+pythnon manage.py createsuperuser
+```
+### 8. Launching the development server
 ```bash
 python manage.py runserver
 ```
-### 8. Setting up the frontend (Vue.js)
+### 9. Setting up the frontend (Vue.js)
 ### Frontend directory:
 ```bash
 cd frontend
 ```
-### 9. Installing dependencies:
+### 10. Installing dependencies:
 ```bash
 npm install
 ```
 
-### 10. Launching the development server:
+### 11. Launching the development server:
 ```bash
 npm run dev
 ```
 
-## 11. Setting up a PostgreSQL database:
+## 12. Setting up a PostgreSQL database:
 ### Install PostgreSQL
 ### Create a database
 ### Specify connection parameters in the .env file
 
-## The backend should be accessible at: http://127.0.0.1:8000
-## The frontend should be accessible at: http://localhost:5173
+### The backend should be accessible at: http://127.0.0.1:8000
+### The frontend should be accessible at: http://localhost:5173
