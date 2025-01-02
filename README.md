@@ -1,9 +1,9 @@
-    SPA application: Comments
+# SPA application: Comments
 
 - Backend is implemented on Django REST framework
 - Frontend is implemented on Vue.js
 
-    User capabilities:
+## User capabilities:
 
 - registration
 - login
@@ -11,20 +11,20 @@
 - publishing posts
 - publishing comments to posts
 
-   Features of the functionality:
+## Features of the functionality:
 
 - registration with validation and captcha
 - processing of photos and files
 - auto tags for the form of publication of a post and comment
 - filtering of posts
 
-    To run on a local repository:
+### To run on a local repository:
 
-  Clone the repository:
-# git clone https://github.com/olexiygolovko/spa_talk_back.git
-# cd spa_talk_back
+### Clone the repository:
+- git clone https://github.com/olexiygolovko/spa_talk_back.git
+- cd spa_talk_back
 
-  Creating a virtual environment:
+### Creating a virtual environment:
 - python -m venv venv
 
   Activating the virtual environment
