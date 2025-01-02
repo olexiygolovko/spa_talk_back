@@ -20,14 +20,17 @@
 
 ## To run on a local repository:
 
-### Clone the repository:
+## 1. Clone the repository:
 ```bash
 git clone https://github.com/olexiygolovko/spa_talk_back.git
+```
+```bash
 cd spa_talk_back
-
-### Creating a virtual environment:
-- python -m venv venv
-
+```
+## 2. Creating a virtual environment:
+```bash
+python -m venv venv
+```
 ### Activating the virtual environment
 ### For Windows:
 - venv\Scripts\activate
