@@ -186,7 +186,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8080",
     'http://127.0.0.1:3000',
     'https://spa-talk-back.onrender.com',
-    'https://talk-back.onrender.com/',
+    'https://talk-back.onrender.com',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -198,7 +198,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8080",
     "http://127.0.0.1:8080",
     'https://spa-talk-back.onrender.com',
-    'https://talk-back.onrender.com/',
+    'https://talk-back.onrender.com',
     'http://127.0.0.1:8000',
 ]
 
