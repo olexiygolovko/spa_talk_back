@@ -20,51 +20,66 @@
 
 ## To run on a local repository:
 
-## 1. Clone the repository:
+### 1. Clone the repository:
 ```bash
 git clone https://github.com/olexiygolovko/spa_talk_back.git
 ```
 ```bash
 cd spa_talk_back
 ```
-## 2. Creating a virtual environment:
+### 2. Creating a virtual environment:
 ```bash
 python -m venv venv
 ```
-### Activating the virtual environment
+### 3. Activating the virtual environment
 ### For Windows:
-- venv\Scripts\activate
-  For Linux/Mac:
-- source venv/bin/activate
+```bash
+venv\Scripts\activate
+```
+### For Linux/Mac:
+```bash
+source venv/bin/activate
+```
 
-### Installing dependencies:
-- pip install -r requirements.txt
-
-### Create .env file
+### 4. Installing dependencies:
+```bash
+pip install -r requirements.txt
+```
+### 5. Create .env file
 ### Create .env file in the root of the project and add the necessary variables:
 - SECRET_KEY=your_secret_key
 - DATABASE_NAME=your_db_name
 - DATABASE_USER=your_db_user
 - DATABASE_PASSWORD=your_db_password
 
-### Applying Migrations
-- python makemigrations
-- python manage.py migrate
+### 6. Applying Migrations
+```bash
+python makemigrations
+```
+```bash
+python manage.py migrate
+```
 
-### Launching the development server
-- python manage.py runserver
-
-### Setting up the frontend (Vue.js)
+### 7. Launching the development server
+```bash
+python manage.py runserver
+```
+### 8. Setting up the frontend (Vue.js)
 ### Frontend directory:
-- cd frontend
+```bash
+cd frontend
+```
+### 9. Installing dependencies:
+```bash
+npm install
+```
 
-### Installing dependencies:
-- npm install
+### 10. Launching the development server:
+```bash
+npm run dev
+```
 
-### Launching the development server:
-- npm run dev
-
-## Setting up a PostgreSQL database:
+## 11. Setting up a PostgreSQL database:
 ### Install PostgreSQL
 ### Create a database
 ### Specify connection parameters in the .env file

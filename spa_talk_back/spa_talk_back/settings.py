@@ -178,15 +178,15 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'comments', 'media'))
 
 
-# if DEBUG:
-#     print(f"MEDIA_ROOT path: {MEDIA_ROOT}")
-#     print(f"BASE_DIR path: {BASE_DIR}")
+if DEBUG:
+    print(f"MEDIA_ROOT path: {MEDIA_ROOT}")
+    print(f"BASE_DIR path: {BASE_DIR}")
 
-# if DEBUG:
-#     MEDIA_URL = 'http://127.0.0.1:8000/media/'
+if DEBUG:
+    MEDIA_URL = 'http://127.0.0.1:8000/media/'
 
-# else:
-#     MEDIA_URL = 'https://spa-talk-back.onrender.com/media/'
+else:
+    MEDIA_URL = 'https://spa-talk-back.onrender.com/media/'
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
