@@ -40,9 +40,6 @@ source venv/bin/activate
 
 ### 4. Installing dependencies:
 ```bash
-cd spa_talk_back
-```
-```bash
 pip install -r requirements.txt
 ```
 ### 5. Create .env file
@@ -53,6 +50,9 @@ pip install -r requirements.txt
 - DATABASE_PASSWORD=your_db_password
 
 ### 6. Applying Migrations
+```bash
+cd spa_talk_back
+```
 ```bash
 python makemigrations
 ```
