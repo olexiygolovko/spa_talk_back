@@ -21,14 +21,15 @@
 ## To run on a local repository:
 
 ### Clone the repository:
-``` git clone https://github.com/olexiygolovko/spa_talk_back.git
-``` cd spa_talk_back
+```bash
+git clone https://github.com/olexiygolovko/spa_talk_back.git
+cd spa_talk_back
 
 ### Creating a virtual environment:
 - python -m venv venv
 
 ### Activating the virtual environment
-  For Windows:
+### For Windows:
 - venv\Scripts\activate
   For Linux/Mac:
 - source venv/bin/activate
@@ -60,10 +61,10 @@
 ### Launching the development server:
 - npm run dev
 
-### Setting up a PostgreSQL database:
-- Install PostgreSQL
-- Create a database
-- Specify connection parameters in the .env file
+## Setting up a PostgreSQL database:
+### Install PostgreSQL
+### Create a database
+### Specify connection parameters in the .env file
 
 ## The backend should be accessible at: http://127.0.0.1:8000
 ## The frontend should be accessible at: http://localhost:5173
